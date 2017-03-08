@@ -1,24 +1,36 @@
-import ijson
-import matplotlib.pyplot as plt
+import pandas as pd
+import datetime
+import numpy as np
+import matplotlib.pylab as plt
 
-filename = 'hr_data.json'
 
-with open( filename , 'r') as f:
-    objects = ijson.items(f,'item')
-    columns = list(objects)
+data = pd.read_json('hr_data.json')
 
-interval = []
+pd.options.mode.chained_assignment = None
 
-for i ,j in  enumerate(columns):
-   interval.append(float(columns[i]['RRInterval'])/1000)
+df = data
 
-print(interval)
 
-plt.hist(interval, 50, normed=1, facecolor='g', alpha=0.75)
-plt.xlabel("RRInterval in Milliseconds")
+j = 0
+
+for i in df.Time:
+   df['Time'][j] = datetime.datetime.fromtimestamp(i / 1000).strftime('%Y-%m-%d %H:%M:%S')
+   df['Time'][j] = datetime.datetime.strptime(str(df['Time'][j]), "%Y-%m-%d %H:%M:%S").time()
+   j += 1
+
+
+df_time_str =df['Time'].astype(str)
+
+pd.to_datetime(df_time_str)
+
+df_index = df.set_index('Time')
+
+print(df_index.head())
+plt.plot(df.Time, df.RRInterval)
+plt.xlabel('Time Span ')
+plt.ylabel('RRInterval')
+
 plt.show()
-
-
 
 
 

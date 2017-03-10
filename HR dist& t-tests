@@ -1,0 +1,54 @@
+
+
+import pandas as pd
+import datetime
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy.stats as st
+
+#Reading Data from JSON files 
+data_rc = pd.read_json('hr_rc.json')
+data_liz = pd.read_json('hr_liz.json')
+
+# Making copies
+df_rc = data_rc
+df_liz = data_liz
+
+#Eliminating outliers based on threshold
+df_rc = df_rc[df_rc['HRV'] <= 250]
+# Ensure a check on max value 
+print(df_rc.loc[df_rc['HRV'] == max(df_rc.HR)])
+
+# creating lists for distributions 
+x= df_rc['HRV']
+y= df_liz['HRV']
+
+#Plotting histograms
+plt.hist(x, 50, normed=1, facecolor='blue', alpha=0.4, label='Liz Heart Rate')
+plt.hist(y, 30, normed=1, facecolor='yellow', alpha=0.3, label='Ravi Heart Rate')
+plt.legend(loc='upper right')
+plt.show()
+
+#Function to Test statistical Signicance through Welch's t-test
+def compare_heartRates():
+    '''
+    Performs a T-test on two sets of Heart Rate Data  to identify if the average heart rates are statistically
+    significant
+    '''
+    data_rc = pd.read_json('hr_rc.json')
+    data_liz = pd.read_json('hr_liz.json')
+
+    rcl1 = data_rc.HR
+    liz1 = data_liz.HR
+
+    test_result  = st.ttest_ind(rcl1, liz1, equal_var= False)
+
+    #Produce Desired Output
+
+    if test_result[1] <= .05 :
+        return(False, test_result)
+    else:
+        return(True, test_result)
+
+output = compare_heartRates()
+print(output)

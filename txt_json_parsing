@@ -1,0 +1,57 @@
+import os
+import pandas as pd
+from collections import Counter
+import  json
+from pandas import DataFrame
+import matplotlib.pyplot as plt
+
+
+# Set local OS path 
+os.chdir('W:/py/DATA/2017_03_20_09_23')
+
+# Getting rid of Empty Files from Directory
+L = []
+for f in os.listdir():
+    if os.stat(f).st_size > 5 :
+        L.append(f)
+        
+        
+#Initializ list
+json_list =[]
+
+#  Open multiple cohort files 
+for i in L:
+    with open(i, 'r') as f:
+        data = json.load(f)
+        json_list.append(data)
+
+#Initialize Lists
+activityStripped =[]
+list_dict =[]
+
+
+# Read data & strip out Activity from each file & store in List 
+for i, item in enumerate(json_list):
+    list_dict = json_list[i]
+    for j,k in enumerate(list_dict):
+            activityStripped.append(list_dict[j]['Activity'])
+            
+# Counting each occurence of Activity within List  
+plot_count = Counter(activityStripped)
+
+# Write to Excel Sheet for Tableau Based Visualizations 
+import xlsxwriter
+
+workbook = xlsxwriter.Workbook('W:/py/data.xlsx')
+worksheet = workbook.add_worksheet()
+
+row = 0
+col = 0
+
+for key, val in plot_count.items():
+   # row += 1
+    worksheet.write(row, col, key)
+    worksheet.write(row, col + 1, val)
+    row += 1
+
+workbook.close()
